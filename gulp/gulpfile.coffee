@@ -9,8 +9,8 @@ browserify = require 'gulp-browserify'
 concat = require('gulp-concat')
 minify = require('gulp-minify-css')
 plumber = require('gulp-plumber')
-uglify     = require 'gulp-uglify'
-rename     = require 'gulp-rename'
+uglify = require 'gulp-uglify'
+rename = require 'gulp-rename'
 
 argv = require('yargs').argv
 spawn = require('child_process').spawn
@@ -26,7 +26,7 @@ gulp.task 'default', ->
   spawnChildren = (e) ->
     if p
       p.kill()
-    p = spawn('gulp', [ 'watcher' ], stdio: 'inherit')
+    p = spawn('gulp', ['watcher', 'app'], stdio: 'inherit')
 
   gulp.watch 'gulpfile.coffee', spawnChildren
   spawnChildren null
@@ -36,15 +36,14 @@ gulp.task 'app', ->
   src = path.join(root_path, 'src/app/index.coffee')
   gulp.watch(coffee_watch).on 'change', (e) ->
     gulp
-      .src src, read: false
-      .pipe plumber()
-      .pipe browserify
-        transform: ['coffeeify']
-        extensions: ['.coffee']
-        debug: true
-      #.pipe uglify()
-      .pipe rename 'build.js'
-      .pipe gulp.dest path.join(root_path, 'public/js/')
+    .src src, read: false
+    .pipe plumber()
+    .pipe browserify
+      transform: ['coffeeify']
+      extensions: ['.coffee']
+      debug: true
+    .pipe rename 'build.js'
+    .pipe gulp.dest path.join(root_path, 'public/js/')
 
 
 gulp.task 'watcher', ->
