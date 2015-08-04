@@ -85,11 +85,11 @@ module.exports = class Table
     @installBombsManually(bombPositions...)
 
   installBombsManually: (bombs...)->
-    _(@_cells).each((cell)->
+    _(@_cells).map((cell)=>
       cell.uninstallBomb()
     ).value()
 
-    _(bombs).map((position)=>
+    @_bombCellPositions = _(bombs).map((position)=>
       @getPositionCell(position).installBomb()
       position
     ).value()
@@ -103,7 +103,7 @@ module.exports = class Table
   lose: ->
     @computeTime()
     @state = Table.status.lose
-    _(@_bombsCount).each((position)=> @getPositionCell(position).open())
+    _(@_bombsCount).map((position)=> @getPositionCell(position).open())
     @lock()
 
   open: (opened) ->
@@ -115,7 +115,7 @@ module.exports = class Table
       @openAround(opened)
 
   openAround: (cell)->
-    _(@getAroundUnopenedCells(cell)).each((around)-> around.open()).value()
+    _(@getAroundUnopenedCells(cell)).map((around)-> around.open()).value()
 
   unlock: ->
     @locked = false

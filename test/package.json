@@ -4,12 +4,12 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "espower-coffee": "^0.10.0"
   },
   "devDependencies": {
     "arda": "^0.13.2",
     "bluebird": "^2.9.34",
     "coffee-script": "^1.9.3",
+    "empower": "^1.0.0",
     "espower-coffee": "^0.10.0",
     "lodash": "^3.10.0",
     "power-assert": "^0.11.0",
