@@ -18,6 +18,4 @@ console.log 'a'
 
 App.start = (node)->
   router = new Arda.Router(Arda.DefaultLayout, node)
-  router.pushContext(App.Context.SettingContext, { router: router, config: {table: new App.Model.Table(5, 4)} })
-  #router.pushContext(App.Context.GameContext, { router: router, config: { width: 10, height: 10, bombs: 10 }})
-  #React.render((ce { $el: App.View.Wall, model: new App.Model.Table(5, 4) }), node)
+  router.pushContext(App.Context.SettingContext, { router: router })

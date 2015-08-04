@@ -1,15 +1,30 @@
 module.exports = Cell = React.createClass(
   mixins: [Arda.mixin]
-  render: ->
-    ce { $el: 'li', $cn: @classes(), ref: 'cell', $inc: @inc() }
-  classes: ->
-    classes = ['cell']
-    classes.push('opened') if @props.model.opened
-    classes.join(' ')
-  inc: ->
-    return ce { $el: App.View.Fa, icon: @props.model.state } if not @props.model.opened
 
-    if @props.model.bombed
+  render: ->
+    ce { $el: 'li', $cn: @genClasses(), ref: 'cell', $inc: @genIncs() }
+
+  componentDidMount: ->
+    cell = React.findDOMNode(@refs.cell)
+    cell.addEventListener("contextmenu", @onContextMenu)
+    cell.addEventListener("mousedown", @onMouseDown)
+
+    @setState(cell: cell)
+
+  componentWillUnmount: ->
+    cell = @state.cell
+    cell.removeEventListener("contextmenu", @onContextMenu)
+    cell.removeEventListener("mousedown", @onMouseDown)
+
+  genClasses: ->
+    classes = ['cell']
+    classes.push('opened') if @props.model.isOpened()
+    classes.join(' ')
+
+  genIncs: ->
+    return ce { $el: App.View.Fa, icon: @props.model.state } if not @props.model.isOpened()
+
+    if @props.model.hasBomb()
       ce { $el: App.View.Fa, icon: 'bomb' }
     else
       count = @props.model.countBombsAround()
@@ -17,13 +32,10 @@ module.exports = Cell = React.createClass(
         ''
       else
         count
+  onContextMenu: (e)->
+    e.preventDefault()
 
-  componentDidMount: ->
-    cell = React.findDOMNode(@refs.cell)
-    cell.addEventListener("contextmenu", (e)-> e.preventDefault())
-    cell.addEventListener("mousedown", @onClickHandler)
-
-  onClickHandler: (e)->
+  onMouseDown: (e)->
     e.preventDefault()
     if e.buttons?
       switch (e.buttons)

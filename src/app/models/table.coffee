@@ -7,9 +7,10 @@ module.exports = class Table
 
   constructor: (@width, @height, @_bombsCount = 1) ->
     throw 'no bombs' if @_bombsCount < 1
+    throw 'over bombs' if @_bombsCount >= @width * @height
 
     @_cells = @initCells()
-    @_bombCellPositions = @installBomb(@_bombsCount)
+    @_bombCellPositions = @installBombs(@_bombsCount)
     @_startedTime = +new Date()
     @passedTime = 0
     @restBomsCount = @_bombsCount
@@ -62,19 +63,25 @@ module.exports = class Table
     @_cells[position]
 
   initCells: =>
-    _.flatten(for y in [0..(@height - 1)]
-      for x in [0..(@width - 1)]
-        new App.Model.Cell(@, x, y))
+    _([0..(@height - 1)]).map((y)=>
+      _([0..(@width - 1)]).map((x)=>
+        new App.Model.Cell(@, x, y)
+      ).value()
+    ).flatten().value()
 
-  installBomb: (count)->
-    @installBombManually(_.shuffle(_.shuffle([0..(@_cells.length - 1)]))[0..(count - 1)]...)
+  installBombs: (count)->
+    bombPositions = _([0..(@_cells.length - 1)]).shuffle().shuffle().value()[0..(count - 1)]
+    @installBombsManually(bombPositions...)
 
-  installBombManually: (bombs...)->
-    for cell in @_cells
-      cell.bombed = false
-    for position in bombs
-      @_cells[position].bombed = true
+  installBombsManually: (bombs...)->
+    _(@_cells).each((cell)->
+      cell.uninstallBomb()
+    ).value()
+
+    _(bombs).map((position)=>
+      @getPositionCell(position).installBomb()
       position
+    ).value()
 
   isLocked: ->
     @locked

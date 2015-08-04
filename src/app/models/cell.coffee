@@ -1,54 +1,58 @@
 module.exports =
   class Cell
-    status:
+    @status:
       none: 'none'
       flag: 'flag'
       question: 'question'
       open: 'open'
-    opened: false
-    bombed: false
     state: null
-    counted: null
 
     constructor: (@table, @x, @y) ->
       @position = @table.width * @y + @x
-      @state = @status.none
+      @state = Cell.status.none
+      @_bomb = false
 
     countBombsAround: =>
-      @counted ?= @table.countBombsAround(@)
+      @_counted ?= @table.countBombsAround(@)
 
     countFlagsAround: =>
       @table.countFlagsAround(@)
 
+    hasBomb: ->
+      @_bomb
+
     isFlagged: ->
-      @state == @status.flag
+      @state == Cell.status.flag
 
     isOpened: ->
-      @opened
+      @state == Cell.status.open
 
     isOpenable:->
-      @state != @status.none
-    hasBomb: ->
-      @bombed
+      not @isOpened() && @state != Cell.status.none
 
-    openAround: ->
-      return if @table.locked
-      @table.openAround(@) if @opened && @countBombsAround() == @countFlagsAround()
+    installBomb: ->
+      @_bomb = true
 
-    rotateMode: ->
-      return if @opened || @table.locked
-      @state = switch @state
-        when @status.none
-          @status.flag
-        when @status.flag
-          @status.question
-        when @status.question
-          @status.none
-      @table.computeRestBombsCount()
-      @state
-    open: =>
+    open: ->
       return if @table.isLocked()
       return true if @isOpened() || @isOpenable()
-      @opened = true
-      @state = @status.open
+      @state = Cell.status.open
       @table.open(@)
+
+    openAround: ->
+      return if @table.isLocked()
+      @table.openAround(@) if @isOpened() && @countBombsAround() == @countFlagsAround()
+
+    rotateMode: ->
+      return if @isOpened() || @table.locked
+      @state = switch @state
+        when Cell.status.none
+          Cell.status.flag
+        when Cell.status.flag
+          Cell.status.question
+        when Cell.status.question
+          Cell.status.none
+      @table.computeRestBombsCount()
+
+    uninstallBomb: ->
+      @_bomb = false

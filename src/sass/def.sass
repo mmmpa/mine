@@ -1,10 +1,14 @@
 body
 	margin: 0
 	padding: 0
+.container
+	width: 300px
+	padding: 0
+
 .table
+	max-width: none
 	margin: 0 auto
 	padding: 0
-	overflow: hidden
 .cell
 	text-align: center
 	line-height: 30px
@@ -19,27 +23,52 @@ body
 	&.opened
 		background: #fff
 		color: #333
+.main-title
+	margin-top: 40px
+	font-size: 40px
+	text-align: center
+
 .game-page
+	&.header
+		white-space: nowrap
+		text-align: center
+		margin-bottom: 20px
 	&.rest,
 	&.time,
 	&.restart
+		padding: 0 10px
+		display: inline-block
 		font-size: 30px
 		line-height: 60px
+		overflow: hidden
 		white-space: nowrap
 	&.rest
+		width: 200px
 		text-align: left
 	&.time
+		width: 200px
 		text-align: right
 	&.restart
 		text-align: center
-	&.bottom-area
+	&.footer
 		text-align: center
-		margin-top: 10px
+		margin-top: 30px
 .conf-page
 	&.title
 		margin-top: 40px
 		font-size: 30px
 		text-align: center
+	&.form-layout
+		margin-bottom: 20px
+		padding: 0
+	&.input-layout,
+	&.input-title-layout
+		display: inline-block
+	&.input-layout
+		width: 70px
+	&.input-title-layout
+		text-align: right
+		width: 30px
 	&.preset-games
 		margin: 0
 		padding: 0

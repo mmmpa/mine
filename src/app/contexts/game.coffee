@@ -12,22 +12,29 @@ module.exports = class GameContext extends Arda.Context
 
   delegate: (subscribe) ->
     super
+
+    subscribe 'back', =>
+      @props.router.popContext()
+
     subscribe 'cell:rightClick', (cell)=>
       cell.rotateMode()
       @update((state) => config: state.config)
+
     subscribe 'cell:leftClick', (cell)=>
       cell.open()
       @update((state) => config: state.config)
+
     subscribe 'cell:leftRightClick', (cell)=>
       cell.openAround()
       @update((state) => config: state.config)
+
     subscribe 'restart', =>
       @props.table = @createTable(@props.config)
       @update((state) => config: state.config)
+
     subscribe 'timer', =>
       @props.table.computeTime()
       @update((state) => config: state.config)
-    subscribe 'back', =>
-      @props.router.popContext()
+
   createTable: (dat)->
     new App.Model.Table(dat.width, dat.height, dat.bombs)

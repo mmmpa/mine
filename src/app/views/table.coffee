@@ -1,10 +1,13 @@
 module.exports =
   Table = React.createClass(
     render: ->
-      ce { $el: 'ul', $cn: 'table', $inc: @cells(), style: @styles() }
-    cells: ->
-      for cell in @props.model.getCells()
+      ce { $el: 'ul', $cn: 'table', $inc: @genCells(), style: @genStyles() }
+
+    genCells: ->
+      _(@props.model.getCells()).map((cell)->
         ce { $el: App.View.Cell, model: cell }
-    styles: ->
+      ).value()
+
+    genStyles: ->
       width: @props.model.width * 30
   )
