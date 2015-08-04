@@ -22,12 +22,12 @@ module.exports = class Table
     @passedTime = _((+new Date() - @_startedTime) / 1000).floor()
 
   countBombsAround: (cell)->
-    _(@getAroundCells(cell)).filter((picked)->
+    _(@getAroundUnopenedCells(cell)).filter((picked)->
       picked && picked.hasBomb()
     ).value().length
 
   countFlagsAround: (cell)->
-    _(@getAroundCells(cell)).filter((picked)->
+    _(@getAroundUnopenedCells(cell)).filter((picked)->
       picked && picked.isFlagged()
     ).value().length
 
@@ -47,10 +47,20 @@ module.exports = class Table
   computeRestBombsCount: ->
     @restBomsCount = @countRestBombs()
 
+  getAroundCellsBase: (cell)->
+    _([(cell.y - 1)..(cell.y + 1)]).map((y)=>
+      _([(cell.x - 1)..(cell.x + 1)]).map((x)=>
+        @getPointCell(x, y)
+      ).value()
+    ).flatten().compact()
+
   getAroundCells: (cell)->
-    _.compact(_.flatten(for y in [(cell.y - 1)..(cell.y + 1)]
-      for x in [(cell.x - 1)..(cell.x + 1)]
-        @getPointCell(x, y)))
+    @getAroundCellsBase(cell).value()
+
+  getAroundUnopenedCells: (cell)->
+    @getAroundCellsBase(cell).select((cell)->
+      not cell.isOpened()
+    ).value()
 
   getCells: ->
     @_cells
@@ -104,7 +114,7 @@ module.exports = class Table
       @openAround(opened)
 
   openAround: (cell)->
-    _(@getAroundCells(cell)).each((around)-> around.open()).value()
+    _(@getAroundUnopenedCells(cell)).each((around)-> around.open()).value()
 
   unlock: ->
     @locked = false
