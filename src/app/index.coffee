@@ -10,7 +10,7 @@ else
     App.Util.ce(args...)
 
 App.Context = require './context'
-App.Util = require('./util')
+App.Util = require './util'
 App.Model = require './model'
 App.View = require './view'
 

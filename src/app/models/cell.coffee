@@ -20,8 +20,16 @@ module.exports =
     countFlagsAround: =>
       @table.countFlagsAround(@)
 
-    flagged: ->
+    isFlagged: ->
       @state == @status.flag
+
+    isOpened: ->
+      @opened
+
+    isOpenable:->
+      @state != @status.none
+    hasBomb: ->
+      @bombed
 
     openAround: ->
       return if @table.locked
@@ -31,17 +39,16 @@ module.exports =
       return if @opened || @table.locked
       @state = switch @state
         when @status.none
-          @table.flag(true)
           @status.flag
         when @status.flag
-          @table.flag(false)
           @status.question
         when @status.question
           @status.none
-
+      @table.computeRestBombsCount()
+      @state
     open: =>
-      return if @table.locked
-      return true if @opened || @state != @status.none
+      return if @table.isLocked()
+      return true if @isOpened() || @isOpenable()
       @opened = true
-      @state == @status.open
+      @state = @status.open
       @table.open(@)

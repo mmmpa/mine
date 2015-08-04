@@ -1,58 +1,65 @@
 module.exports = class Table
-  status:
+  @status:
     play: 'play'
-    clear: 'clear'
-    die: 'die'
+    win: 'win'
+    lose: 'lose'
   state: null
 
-  constructor: (@width, @height, @bombs = 1) ->
-    throw 'no bombs' if @bombs < 1
+  constructor: (@width, @height, @_bombsCount = 1) ->
+    throw 'no bombs' if @_bombsCount < 1
 
-    @cells = @initCells()
-    @bombs = @installBomb(@bombs)
-    @flagged = 0
-    @start = +new Date()
-    @passed = 0
-    @opened = 0
-    @must = @cells.length - @bombs.length
-    @state = @status.play
-  around: (cell)->
-    _.compact(_.flatten(for y in [(cell.y - 1)..(cell.y + 1)]
-      for x in [(cell.x - 1)..(cell.x + 1)]
-        @cell(x, y)))
+    @_cells = @initCells()
+    @_bombCellPositions = @installBomb(@_bombsCount)
+    @_startedTime = +new Date()
+    @passedTime = 0
+    @restBomsCount = @_bombsCount
+    @_blankCellsCount = @_cells.length - @_bombsCount
+    @state = Table.status.play
 
-  cell: (x, y)->
-    return null if x < 0 || y < 0 || x > @width - 1 || y > @height - 1
-    @cells[y * @width + x]
+  computeTime: ->
+    return if @isLocked()
+    @passedTime = _((+new Date() - @_startedTime) / 1000).floor()
 
   countBombsAround: (cell)->
-    _.filter(@around(cell), (picked)->
-      picked && picked.bombed
-    ).length
+    _(@getAroundCells(cell)).filter((picked)->
+      picked && picked.hasBomb()
+    ).value().length
 
   countFlagsAround: (cell)->
-    _.filter(@around(cell), (picked)->
-      picked && picked.flagged()
-    ).length
+    _(@getAroundCells(cell)).filter((picked)->
+      picked && picked.isFlagged()
+    ).value().length
 
-  die: ->
-    @time()
-    @state = @status.die
-    _.each(@bombs, (position)=>
-      @positionCell(position).open()
-    )
-    @locked = true
+  countFlaggedCell: ->
+    _(@_cells).filter((picked)->
+      picked && picked.isFlagged()
+    ).value().length
 
-  clear: ->
-    @time()
-    @state = @status.clear
-    @locked = true
+  countOpenedCell: ->
+    _(@_cells).filter((picked)->
+      picked && picked.isOpened()
+    ).value().length
 
-  flag: (plus)->
-    if plus
-      @flagged += 1
-    else
-      @flagged -= 1
+  countRestBombs: ->
+    @_bombsCount - @countFlaggedCell()
+
+  computeRestBombsCount: ->
+    @restBomsCount = @countRestBombs()
+
+  getAroundCells: (cell)->
+    _.compact(_.flatten(for y in [(cell.y - 1)..(cell.y + 1)]
+      for x in [(cell.x - 1)..(cell.x + 1)]
+        @getPointCell(x, y)))
+
+  getCells: ->
+    @_cells
+
+  getPointCell: (x, y)->
+    return null if x < 0 || y < 0 || x > @width - 1 || y > @height - 1
+    @getPositionCell(y * @width + x)
+
+  getPositionCell: (position) ->
+    @_cells[position]
 
   initCells: =>
     _.flatten(for y in [0..(@height - 1)]
@@ -60,34 +67,43 @@ module.exports = class Table
         new App.Model.Cell(@, x, y))
 
   installBomb: (count)->
-    @installBombManually(_.shuffle(_.shuffle([0..(@cells.length - 1)]))[0..(count - 1)]...)
+    @installBombManually(_.shuffle(_.shuffle([0..(@_cells.length - 1)]))[0..(count - 1)]...)
 
   installBombManually: (bombs...)->
-    for cell in @cells
+    for cell in @_cells
       cell.bombed = false
-    @bombs = for position in bombs
-      @cells[position].bombed = true
+    for position in bombs
+      @_cells[position].bombed = true
       position
 
-  open: (openCell) ->
-    return  @die() if openCell.bombed || @locked
+  isLocked: ->
+    @locked
 
-    @opened += 1
-    return @clear() if @must == @opened
+  lock: ->
+    @locked = true
 
-    if openCell.countBombsAround() == 0
-      _.each(@around(openCell), (aroundCell)-> aroundCell.open())
-    true
+  lose: ->
+    @computeTime()
+    @state = Table.status.lose
+    _(@_bombsCount).each((position)=> @getPositionCell(position).open())
+    @lock()
+
+  open: (opened) ->
+    return if @isLocked()
+    return @lose() if opened.hasBomb()
+    return @win() if @_blankCellsCount == @countOpenedCell()
+
+    if opened.countBombsAround() == 0
+      @openAround(opened)
 
   openAround: (cell)->
-    _.each(@around(cell), (aroundCell)-> aroundCell.open())
+    _(@getAroundCells(cell)).each((around)-> around.open()).value()
 
-  positionCell: (position) ->
-    @cells[position]
+  unlock: ->
+    @locked = false
 
-  time: ->
-    return if @locked
-    @passed = _.floor((+new Date() - @start) / 1000)
+  win: ->
+    @computeTime()
+    @state = Table.status.win
+    @lock()
 
-  rest: ->
-    @bombs.length - @flagged

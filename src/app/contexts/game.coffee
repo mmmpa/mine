@@ -25,7 +25,7 @@ module.exports = class GameContext extends Arda.Context
       @props.table = @createTable(@props.config)
       @update((state) => config: state.config)
     subscribe 'timer', =>
-      @props.table.time()
+      @props.table.computeTime()
       @update((state) => config: state.config)
     subscribe 'back', =>
       @props.router.popContext()

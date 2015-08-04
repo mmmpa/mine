@@ -1,11 +1,12 @@
 module.exports = Game = React.createClass(
   mixins: [Arda.mixin]
   render: ->
+    table = @props.config
     ce { $el: 'div', $inc: [
       ce { $el: 'div', $cn: 'container', $inc: [
         ce { $el: 'div', $cn: 'col-sm-offset-3 col-sm-6 game-page clearfix', $inc: [
           ce { $el: 'div', $cn: 'col-sm-5 game-page time', $inc: [
-            @props.config.passed
+            table.passedTime
           ] }
           ce { $el: 'div', $cn: 'col-sm-2 game-page restart', $inc: [
             ce { $el: 'button', $cn: "btn btn-#{@buttonColor()} game-page wide", onClick: @onClickRestart, $inc: [
@@ -13,7 +14,7 @@ module.exports = Game = React.createClass(
             ] }
           ] }
           ce { $el: 'div', $cn: 'col-sm-5 game-page rest', $inc: [
-            @props.config.rest()
+            table.restBomsCount
           ] }
         ] }
       ] }
@@ -46,19 +47,19 @@ module.exports = Game = React.createClass(
 
   buttonFace: ->
     switch @props.config.state
-      when @props.config.status.play
+      when App.Model.Table.status.play
         'meh-o'
-      when @props.config.status.clear
+      when App.Model.Table.status.win
         'smile-o'
-      when @props.config.status.die
+      when App.Model.Table.status.lose
         'frown-o'
 
   buttonColor: ->
     switch @props.config.state
-      when @props.config.status.play
+      when App.Model.Table.status.play
         'default'
-      when @props.config.status.clear
+      when App.Model.Table.status.win
         'primary'
-      when @props.config.status.die
+      when App.Model.Table.status.lose
         'danger'
 )
