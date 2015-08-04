@@ -23,22 +23,22 @@ module.exports = class Table
 
   countBombsAround: (cell)->
     _(@getAroundUnopenedCells(cell)).filter((picked)->
-      picked && picked.hasBomb()
+      picked.hasBomb()
     ).value().length
 
   countFlagsAround: (cell)->
     _(@getAroundUnopenedCells(cell)).filter((picked)->
-      picked && picked.isFlagged()
+      picked.isFlagged()
     ).value().length
 
   countFlaggedCell: ->
     _(@_cells).filter((picked)->
-      picked && picked.isFlagged()
+      picked.isFlagged()
     ).value().length
 
   countOpenedCell: ->
     _(@_cells).filter((picked)->
-      picked && picked.isOpened()
+      picked.isOpened()
     ).value().length
 
   countRestBombs: ->
@@ -56,6 +56,7 @@ module.exports = class Table
 
   getAroundCells: (cell)->
     @getAroundCellsBase(cell).value()
+
 
   getAroundUnopenedCells: (cell)->
     @getAroundCellsBase(cell).select((cell)->
