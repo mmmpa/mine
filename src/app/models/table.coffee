@@ -114,7 +114,7 @@ module.exports = class Table
   lose: ->
     @computeTime()
     @state = Table.status.lose
-    _(@_bombsCount).map((position)=> @getPositionCell(position).open())
+    _(@_cells).map((cell)=> cell.open() if cell.hasBomb()).value()
     @lock()
 
   open: (opened) ->
