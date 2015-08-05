@@ -1,4 +1,8 @@
-
+module.exports = class GameContext extends Arda.Context
+  component: React.createClass(
+    render: ->
+      ce { $el: App.View.Game, config: @props.config }
+  )
 
   initState: (props) ->
     props.table = @createTable(props.config)
