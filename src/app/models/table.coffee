@@ -122,7 +122,6 @@ module.exports = class Table
     return @lose() if opened.hasBomb()
     return @win() if @_blankCellsCount == @countOpenedCell()
 
-
     if not @calm && opened.isBlank()
       @calm = true
       _(opened.blankMap).map((cell)->

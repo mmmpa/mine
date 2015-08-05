@@ -52,7 +52,7 @@ gulp.task 'build', ->
     .bundle()
     .on('error', onError)
     .pipe source('dummy.js')
-    #.pipe streamify(uglify())
+    .pipe streamify(uglify())
     .pipe rename('build.min.js')
     .pipe gulp.dest(publicJsPath)
 
