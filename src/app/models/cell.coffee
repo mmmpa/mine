@@ -45,11 +45,14 @@ module.exports =
     incrementAroundBombsCount: ->
       @_counted += 1
 
+    isBlank: ->
+      @_counted == 0
+
     isSafe: ->
       not @_bomb
 
-    isBlank: ->
-      @_counted == 0
+    isSafeNotBlank: ->
+      not @_bomb && not @isBlank()
 
     isFlagged: ->
       @state == Cell.status.flag
@@ -68,8 +71,19 @@ module.exports =
       @table.informBombExistence(@)
 
     pal: (cell)->
-      @blankMap = cell.blankMap
-      @blankMap.push(@)
+      return if @blankMap == cell.blankMap
+
+      if @blankMap.length == 1
+        @blankMap = cell.blankMap
+        @blankMap.push(@)
+      else if cell.blankMap == 1
+        @blankMap.push(cell)
+        cell.blankMap = @blankMap
+      else
+        for myCell in @blankMap
+          cell.blankMap.push(myCell)
+          myCell.blankMap = cell.blankMap
+        @blankMap = cell.blankMap
 
     detectPaling: (cell)->
       if @isBlank()
@@ -80,37 +94,34 @@ module.exports =
     palAround: (cell)->
       return if @paled
       @paled = true
-      @pal(cell) if cell
 
       d = @getDownCell()
       u = @getUpCell()
       l = @getLeftCell()
       r = @getRightCell()
 
-      if l?.isBlank()
-        l.palAround(@)
-      else if l?.isSafe()
+      @pal(cell) if cell?
+      @pal(l) if l?.paled
+      @pal(r) if r?.paled
+      @pal(d) if d?.paled
+      @pal(u) if u?.paled
+
+      if l?.isSafeNotBlank()
         l.pal(@)
         l.getUpCell()?.detectPaling(@)
         l.getDownCell()?.detectPaling(@)
 
-      if r?.isBlank()
-        r.palAround(@)
-      else if r?.isSafe()
+      if r?.isSafeNotBlank()
         r.pal(@)
         r.getUpCell()?.detectPaling(@)
         r.getDownCell()?.detectPaling(@)
 
-      if d?.isBlank()
-        d.palAround(@)
-      else if d?.isSafe()
+      if d?.isSafeNotBlank()
         d.pal(@)
         d.getLeftCell()?.detectPaling(@)
         d.getRightCell()?.detectPaling(@)
 
-      if u?.isBlank()
-        u.palAround(@)
-      else if u?.isSafe()
+      if u?.isSafeNotBlank()
         u.pal(@)
         u.getLeftCell()?.detectPaling(@)
         u.getRightCell()?.detectPaling(@)
