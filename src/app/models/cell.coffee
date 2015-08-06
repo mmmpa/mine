@@ -73,18 +73,21 @@ module.exports =
     pal: (cell)->
       return if @blankMap == cell.blankMap
 
-      if @blankMap.length == 1
-        @blankMap = cell.blankMap
-        @blankMap.push(@)
-      else if cell.blankMap == 1
-        @blankMap.push(cell)
-        cell.blankMap = @blankMap
-      else
-        for myCell in @blankMap
-          cell.blankMap.push(myCell)
-          myCell.blankMap = cell.blankMap
-        @blankMap = cell.blankMap
-
+      if @.isBlank()
+        if @blankMap.length == 1
+          @blankMap = cell.blankMap
+          @blankMap.push(@)
+        else if cell.blankMap == 1
+          @blankMap.push(cell)
+          cell.blankMap = @blankMap
+        else
+          for myCell in @blankMap
+            cell.blankMap.push(myCell)
+            myCell.blankMap = cell.blankMap
+          @blankMap = cell.blankMap
+      else if @.isSafe()
+        cell.blankMap.push(@)
+        
     detectPaling: (cell)->
       if @isBlank()
         @palAround(cell)
